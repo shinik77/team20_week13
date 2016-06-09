@@ -1,83 +1,67 @@
 package com.nts.cleancode.collections;
 
-public class Map extends AbstractCollection {
+public class Set extends AbstractCollection {
 	private static int INITIAL_CAPACITY = 10;
-	protected Object[] keys = new Object[INITIAL_CAPACITY];
-	protected Object[] values = new Object[INITIAL_CAPACITY];
 	private int size = 0;
-	private int indexWhereKeyFound;
 	private boolean readOnly;
 
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
-	public void add(Object key, Object value) {
+	public void add(Object element) {
 		if (!readOnly) {
-			for (int i = 0; i < size; i++)
-				if (keys[i].equals(key)) {
-					values[i] = value;
-					return;
-				}
-
 			int newSize = size + 1;
-			if (newSize > keys.length) {
-				Object[] newKeys = new Object[keys.length + INITIAL_CAPACITY];
-				Object[] newValues = new Object[keys.length + INITIAL_CAPACITY];
-				System.arraycopy(keys, 0, newKeys, 0, size);
-				System.arraycopy(values, 0, newValues, 0, size);
-				keys = newKeys;
-				values = newValues;
+			if (newSize > elements.length) {
+				Object[] newElements =
+					new Object[elements.length + INITIAL_CAPACITY];
+				for (int i = 0; i < size; i++)
+					newElements[i] = elements[i];
+				elements = newElements;
 			}
 
-			keys[size] = key;
-			values[size] = value;
-			size++;
+			if (contains(element))
+				return;
+			elements[size++] = element;
 		}
+	}
+
+	public boolean contains(Object element) {
+		for (int i = 0; i < size; i++)
+			if (elements[i].equals(element))
+				return true;
+		return false;
 	}
 
 	public int size() {
 		return size;
 	}
 
-	public boolean remove(Object key) {
+	public boolean remove(Object element) {
 		if (readOnly)
 			return false;
 		for (int i = 0; i < size; i++)
-			if (keys[i].equals(key)) {
-				keys[i] = null;
-				values[i] = null;
+			if (elements[i].equals(element)) {
+				elements[i] = null;
+				Object[] newElements = new Object[size - 1];
+				int k = 0;
+				for (int j = 0; j < size; j++) {
+					if (elements[j] != null)
+						newElements[k++] = elements[j];
+				}
 				size--;
+				elements = newElements;
 				return true;
 			}
 		return false;
 	}
 
-	public boolean contains(Object value) {
-		for (int i = 0; i < size; i++)
-			if ((value == null && values[i] == null)
-				|| (values[i] != null && values[i].equals(value)))
-				return true;
-		return false;
-	}
-
-	public boolean containsKey(Object key) {
-		for (int i = 0; i < size; i++)
-			if (keys[i] != null && keys[i].equals(key)) {
-				indexWhereKeyFound = i;
-				return true;
-			}
-		return false;
-	}
-
-	public Object get(Object key) {
-		if (!containsKey(key))
-			return null;
-		return values[indexWhereKeyFound];
+	public Object getElementAt(int index) {
+		return elements[index];
 	}
 
 	public int capacity() {
-		return keys.length;
+		return elements.length;
 	}
 
 	public void setReadOnly(boolean b) {
